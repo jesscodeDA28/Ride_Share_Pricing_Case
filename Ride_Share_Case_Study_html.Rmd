@@ -1,0 +1,136 @@
+---
+title: "RideShare_Pricing_Case_Study"
+author: "Jessica Torres"
+date: "2022-11-08"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ride Share Pricing Case Study
+
+Focus: Create a pricing strategy to maximize the profit of the ride-hailing business over the 12 month period it will be open.
+
+## About the Company 
+
+A ride-hailing service that matches riders with drivers for trips between the Toledo Airport and Downtown Toledo. It'll be active for only 12 months. How it works is a ride is requested, a very large pool of drivers see a notification informing them of the request. They choose whether or not to accept it. The cost to acquire a rider is $30 at any time during the year. You can't acquire more than 1,000 riders in one month. The Poisson distribution theory is used to request rides. 
+
+## Business Task 
+
+Developing a pricing strategy to maximize the profit for the ride hailing service that matches riders with drivers. Utilizing trends from the data that was given, using the Poisson distribution method, and a competitor analysis. 
+
+## Questions to Ask
+
+1. What are some of the drivers pay trends that are noticeable from the data given? 
+2. How does the Poisson distribution theory reveal about the matching process in this case?  
+3. What are the competitors pricing strategies? 
+
+## Loading Packages
+```{r}
+library(tidyverse)
+library(ggplot2) 
+```
+Viewed data importation using the View() function.
+
+Changed directory before next step through session, set working directory, choose directory, and chose the appropriate file. 
+
+## Importing data/Organizing Data
+
+```{r}
+DriverData <-read.csv("~/Desktop/Driver Case Study/driverAcceptanceData.csv")
+```
+
+## Summary of the pay data
+```{r}
+DriverData %>%
+  select(PAY)%>%
+  summary()
+```
+
+## Visualization
+
+```{r}
+#Pay Vs. Accepted
+
+ggplot(data=DriverData)+
+  geom_point(mapping = aes(x=PAY, y=ACCEPTED),color="dark blue", size=3)+
+  labs(title = "Driver Pay vs. Accepted Matches")+
+  theme(plot.title = element_text(hjust=0.5))
+```
+
+
+The graph above represents the amount of pay that every driver has accepted to drive someone from the Toledo airport to downtown Toledo or vice versa. All of the accepted data is under the number 1 and all of the unaccepted data is under 0. It reveals that majority of the drivers choose to begin with all the routes that included the average pay of $25.71. The lowest amount they accepted was $20.00 and the highest payed route the drivers accepted was $53.67. There are outliers that are much lower than the average pay but that could most probably represent the slow downs in app usage. 
+
+
+## Poisson Calculations
+
+```{r}
+dpois(0:7,1)
+dpois(0:7,2)
+dpois(0:7,3)
+```
+
+Create vectors for each Lambda
+```{r}
+x <- 0:7
+
+#lambda is number of rides that they found a match for in the previous month
+
+Lambda1 <-dpois(0:7,1)
+Lambda2 <-dpois(0:7,2)
+Lambda3 <-dpois(0:7,3)
+```
+
+Data frame is created to plot all points into one graph
+```{r}
+df <-data.frame(x, Lambda1, Lambda2, Lambda3)
+```
+
+
+```{r}
+#the number of occurrences vs the expected rate of occurrences
+
+ggplot(data = df, mapping = aes(x=x))+
+  geom_line(mapping=aes(y=Lambda1,color="Lambda1"))+
+  geom_point(mapping=aes(y=Lambda1,color="Lambda1"))+
+  geom_line(mapping=aes(y=Lambda2,color="Lambda2"))+
+  geom_point(mapping=aes(y=Lambda2,color="Lambda2"))+
+  geom_line(mapping=aes(y=Lambda3,color="Lambda3"))+
+  geom_point(mapping=aes(y=Lambda3,color="Lambda3"))+
+  labs(title= "the number of occurrences vs the expected rate of occurrences",y="expected rate", x="# of occurrences (matches)")+ 
+  theme(plot.title = element_text(hjust=0.5))
+```
+
+The graph above reveals that on Lambda = 1 the chance of receiving a first match will be the same as not having any matches. If an individual reaches 2 matches on their first month their second month will mostly likely also have a high probability of receiving 2 matches as well. The graph also reveals the probability of receiving a 3rd match on the first month has a much lower probability and as the matches increase the expected rate decreases. If they received two matches in the previous month then it moves onto Lambda = 2 but if they have only received 1 match then it stays on Lambda1. Lambda = 1 also pertains to those who have not used the application. If they are in Lambda = 2 which is the green line the probability of them getting matched to 2 matches is much higher than on Lambda = 1 and the probability of getting 1 or 2 matches is the same. Once the individual has matched three times under Lambda = 3 you have the same probability of getting 2 or 3 matches again. This same pattern will be mirrored depending on the number times an individual uses the application. 
+
+
+## Competitor Analysis 
+
+The most known competitors in the ride-hailing industry are Uber and Lyft. If we compare the amounts that they use for pricing they price at a much lower rate. Lyft and Uber takes 25% of the rider fare and the 75% goes to the driver. I ran a price estimation in Uber and it ranges rom $35.30 to $58.70 to get driven from the airport in Toledo to downtown, which is a 20 mile long ride that could take around 30 minutes to arrive. Lyft gives a range and around $25-30 to $42-$49. Obviously, the higher rates could carry more people or have premium features. This also doesn't include when demand has increased and prices surge. 
+
+Upon looking at both companies income statements Lyft has grown in profits which indicates their pricing strategy it is very successful. They also predict they will reach up to 1 billion in operating profits by the year 2024. They do pay their drivers a little bit more than Uber and tips tend to be higher using Lyft. On average, a driver using Lyft makes about $17 per ride. On the other hand, Uber has been struggling with their cost structure since Covid broke out and thus have been declining in profits. 
+
+## Pricing Strategy
+
+Ride hailing companies just like airline companies use dynamic pricing strategies to adjust the supply and demand of their service. Its noted that a customer pays for convenience. Whether its rush hour or bad weather demand increases and supply then decreases leading to a price surge. Due to the complexity of the service needing both drivers and riders its best to build a pricing strategy that is not one-size fits all strategy, however in this case, its a one route system from the airport to downtown so the pricing won't be as volatile. 
+
+In order to acquire a customer, it takes $30 per ride since this is the cost we initiate here. We want drivers to be motivated enough to accept a good pay offer above the  $25.71 that was mentioned above and we also want the customer to come back and use the application just as it also represents in our probability graph. So, if we come up with a hypothetical example, cost per mile could be $0.85 per mile and cost per minute could be $0.45 per minute which is a little bit higher than the competitors. Add a service fee to the fare of about $4.00 and any penalty fees so the company doesn't take a loss in time of about $10.00. The estimated calculation from the airport to downtown Toledo would be around $69.25.
+
+    Calculation: Base                              $1.75
+                 Time(30 min x $0.45/min)          $13.50
+                 Distance(20 miles x $0.85/min)    $17.00
+                 Rider fare                        $35.00
+                 Service fee                       $2.00
+                 Total                             $69.25 
+   
+   Driver receives (Base, Time, Distance) : $32.25 
+   Company receives (Rider fare and service fee) : $37.00 
+  
+Increasing the pay for the drivers by a little bit more can help the company attract more drivers especially since its just starting to attract its very first drivers for its new launch. A 30 minute drive across a large city for $69.25 sounds competitive. This price doesn't account for any surges in prices that include rush hours or bad weather. Adding $5.00 to our rider fare increases our profit by about 16.67% for every ride made from the airport to downtown Toledo. The service fee can be utilized for anything the company wants to add to the application for the convenience of the customers.For example, adding any premium features to set the app apart from the competition. 
+
+At the end of the year,if we reach the 1,000 riders per month the total estimated revenue would be $831,000. After paying the drivers the company makes around $444,000 and profit will be around $74,014.80. 
